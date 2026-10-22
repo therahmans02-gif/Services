@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #0a0820;
+    --bg-2: #1a1040;
+    --violet: #7b5cff;
+    --blue: #4f8bff;
+    --neon: #a58bff;
+    --text: #e8e6ff;
+    --muted: #9b95c9;
+    --card: rgba(30, 22, 80, 0.55);
+    --border: rgba(123, 92, 255, 0.45);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-1) 70%);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(123, 92, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123, 92, 255, 0.12) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    animation: drift 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(48px); }
+  }
+
+  /* Glowing orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 380px; height: 380px; background: var(--violet); top: -120px; left: -100px; }
+  .orb-2 { width: 320px; height: 320px; background: var(--blue); bottom: -120px; right: -80px; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 8px 18px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    margin-bottom: 36px;
+  }
+  .status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 12px var(--neon);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(56px, 11vw, 120px);
+    letter-spacing: 6px;
+    line-height: 1;
+    background: linear-gradient(90deg, #c7b8ff, var(--violet), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(123, 92, 255, 0.35);
+    margin-bottom: 18px;
+  }
+
+  .greeting {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: clamp(18px, 2.6vw, 26px);
+    color: var(--neon);
+    letter-spacing: 2px;
+    min-height: 1.6em;
+    margin-bottom: 14px;
+  }
+
+  .clock {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 56px;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+  }
+
+  .service {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 22px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    text-align: left;
+    color: var(--text);
+    font-family: inherit;
+    font-size: inherit;
+    overflow: hidden;
+  }
+  .service::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(123,92,255,0.25), rgba(79,139,255,0.05));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .service:hover, .service:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--neon);
+    box-shadow: 0 0 30px rgba(123, 92, 255, 0.5), inset 0 0 20px rgba(123, 92, 255, 0.15);
+    outline: none;
+  }
+  .service:hover::before, .service:focus-visible::before { opacity: 1; }
+  .service.selected {
+    border-color: var(--blue);
+    box-shadow: 0 0 36px rgba(79, 139, 255, 0.6);
+  }
+
+  .service .icon {
+    position: relative;
+    font-size: 30px;
+    margin-bottom: 14px;
+    color: var(--neon);
+  }
+  .service .name {
+    position: relative;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .service .desc {
+    position: relative;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .footer-note {
+    margin-top: 40px;
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .footer-note span { color: var(--neon); }
+
+  .credit {
+    position: fixed;
+    right: 24px;
+    bottom: 20px;
+    z-index: 2;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #c7b8ff;
+    text-shadow:
+      0 0 6px rgba(123, 92, 255, 0.9),
+      0 0 14px rgba(79, 139, 255, 0.7),
+      0 0 26px rgba(123, 92, 255, 0.5);
+    animation: glow 3s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; text-shadow: 0 0 10px rgba(123, 92, 255, 1), 0 0 22px rgba(79, 139, 255, 0.9), 0 0 36px rgba(123, 92, 255, 0.6); }
+  }
+
+  .selection-bar {
+    margin-top: 28px;
+    min-height: 26px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--blue);
+  }
+
+  @media (max-width: 600px) {
+    h1 { letter-spacing: 3px; }
+    .services { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="container">
+    <div class="status"><span class="dot"></span> System Online</div>
+
+    <h1>Hello</h1>
+    <div class="greeting" id="greeting">Good day</div>
+    <div class="clock" id="clock">--:-- GMT+6</div>
+
+    <div class="section-title">Select a service</div>
+    <div class="services" id="services">
+      <button class="service" data-service="url-shortener">
+        <div class="icon">◈</div>
+        <div class="name">URL Extender</div>
+        <div class="desc">Shorten YouTube, Facebook &amp; Instagram links</div>
+      </button>
+      <button class="service" data-service="jpeg-png">
+        <div class="icon">◉</div>
+        <div class="name">JPG / JPEG to PNG</div>
+        <div class="desc">Convert JPG and JPEG images to PNG with no quality loss</div>
+      </button>
+      <button class="service" data-service="chess">
+        <div class="icon">◎</div>
+        <div class="name">Chess</div>
+        <div class="desc">Show your skills in chess</div>
+      </button>
+      <button class="service" data-service="service-4">
+        <div class="icon">⬡</div>
+        <div class="name">Service 04</div>
+        <div class="desc">Placeholder option</div>
+      </button>
+    </div>
+
+    <div class="selection-bar" id="selectionBar"></div>
+  </main>
+
+  <div class="credit">Made by MasterX9</div>
+
+<script>
+  // Time is always computed in GMT+6 (Asia/Dhaka), regardless of the viewer's device timezone
+  function getDhakaHour() {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Dhaka',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    const hour = parseInt(parts.find(p => p.type === 'hour').value, 10);
+    const minute = parts.find(p => p.type === 'minute').value;
+    return { hour, minute };
+  }
+
+  function getGreeting(hour) {
+    if (hour >= 5 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 17) return 'Good afternoon';
+    if (hour >= 17 && hour < 21) return 'Good evening';
+    return 'Good night';
+  }
+
+  function updateTime() {
+    const { hour, minute } = getDhakaHour();
+    document.getElementById('greeting').textContent = getGreeting(hour) + '.';
+    const h12 = ((hour + 11) % 12) + 1;
+    const ampm = hour < 12 ? 'AM' : 'PM';
+    document.getElementById('clock').textContent =
+      `${String(h12).padStart(2, '0')}:${minute} ${ampm} · GMT+6`;
+  }
+
+  updateTime();
+  setInterval(updateTime, 30000);
+
+  // Service selection
+  const bar = document.getElementById('selectionBar');
+  document.querySelectorAll('.service').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pages = { 'url-shortener': 'shortener.html', 'jpeg-png': 'converter.html', 'chess': 'chess.html' };
+      if (pages[btn.dataset.service]) {
+        window.location.href = pages[btn.dataset.service];
+        return;
+      }
+      document.querySelectorAll('.service').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      bar.textContent = '> ' + btn.querySelector('.name').textContent.toUpperCase() + ' SELECTED';
+    });
+  });
+</script>
+</body>
+</html>

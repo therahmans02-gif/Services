@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPEG to PNG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #0a0820;
+    --bg-2: #1a1040;
+    --violet: #7b5cff;
+    --blue: #4f8bff;
+    --neon: #a58bff;
+    --text: #e8e6ff;
+    --muted: #9b95c9;
+    --card: rgba(30, 22, 80, 0.55);
+    --border: rgba(123, 92, 255, 0.45);
+    --err: #ff7ab8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-1) 70%);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    padding: 40px 20px 90px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(123, 92, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123, 92, 255, 0.12) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    animation: drift 20s linear infinite;
+    pointer-events: none; z-index: 0;
+  }
+  @keyframes drift { from { transform: translateY(0); } to { transform: translateY(48px); } }
+
+  .orb { position: fixed; border-radius: 50%; filter: blur(90px); opacity: 0.45; pointer-events: none; z-index: 0; }
+  .orb-1 { width: 380px; height: 380px; background: var(--violet); top: -120px; left: -100px; }
+  .orb-2 { width: 320px; height: 320px; background: var(--blue); bottom: -120px; right: -80px; }
+
+  .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+
+  .back {
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 30px;
+    transition: color 0.2s;
+  }
+  .back:hover { color: var(--neon); }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(34px, 6vw, 56px);
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #c7b8ff, var(--violet), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(123, 92, 255, 0.35);
+    margin-bottom: 10px;
+  }
+  .subtitle { color: var(--muted); font-size: 17px; letter-spacing: 1px; margin-bottom: 36px; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 40px rgba(123, 92, 255, 0.15);
+  }
+
+  /* Drop zone with a browse button */
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 46px 20px;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    background: rgba(10, 8, 32, 0.4);
+  }
+  .dropzone.dragover {
+    border-color: var(--neon);
+    box-shadow: 0 0 30px rgba(123, 92, 255, 0.5);
+    background: rgba(123, 92, 255, 0.12);
+  }
+  .dropzone p { color: var(--muted); font-size: 17px; margin-bottom: 18px; }
+  .file-name { color: var(--neon); font-size: 16px; margin-top: 16px; word-break: break-all; }
+
+  button, .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 12px;
+    padding: 14px 24px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    color: var(--text);
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .primary {
+    background: linear-gradient(90deg, var(--violet), var(--blue));
+    box-shadow: 0 0 22px rgba(123, 92, 255, 0.5);
+  }
+  .primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 34px rgba(123, 92, 255, 0.8); }
+  .ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+  }
+  .ghost:hover:not(:disabled) { border-color: var(--neon); box-shadow: 0 0 16px rgba(123, 92, 255, 0.4); }
+
+  input[type="file"] { display: none; }
+
+  .msg { margin-top: 16px; min-height: 22px; font-size: 16px; color: var(--err); }
+
+  /* Preview */
+  .preview {
+    display: none;
+    margin-top: 28px;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid var(--blue);
+    background: rgba(79, 139, 255, 0.08);
+    box-shadow: 0 0 26px rgba(79, 139, 255, 0.35);
+  }
+  .preview.show { display: block; }
+  .preview-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .preview-img-wrap {
+    background: repeating-conic-gradient(#1a1440 0% 25%, #100c2c 0% 50%) 50% / 24px 24px;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .preview img {
+    max-width: 100%;
+    max-height: 480px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+  .info { display: flex; gap: 22px; flex-wrap: wrap; font-size: 16px; color: var(--muted); margin-bottom: 20px; }
+  .info b { color: var(--neon); font-weight: 600; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .note { margin-top: 18px; font-size: 15px; color: var(--muted); }
+
+  .credit {
+    position: fixed; right: 24px; bottom: 20px; z-index: 2;
+    font-family: 'Orbitron', sans-serif; font-size: 13px; letter-spacing: 2px;
+    color: #c7b8ff;
+    text-shadow: 0 0 6px rgba(123, 92, 255, 0.9), 0 0 14px rgba(79, 139, 255, 0.7), 0 0 26px rgba(123, 92, 255, 0.5);
+    animation: glow 3s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; text-shadow: 0 0 10px rgba(123, 92, 255, 1), 0 0 22px rgba(79, 139, 255, 0.9), 0 0 36px rgba(123, 92, 255, 0.6); }
+  }
+</style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="container">
+    <a class="back" href="index.html">&larr; BACK TO SERVICES</a>
+    <h1>JPG / JPEG TO PNG</h1>
+    <p class="subtitle">Convert JPG and JPEG images to PNG. The conversion happens in your browser, and your image is never uploaded.</p>
+
+    <section class="panel">
+      <div class="dropzone" id="dropzone">
+        <p>Drag a JPG or JPEG image here, or</p>
+        <button class="primary" id="browseBtn">Browse files</button>
+        <input type="file" id="fileInput" accept="image/jpeg,.jpg,.jpeg">
+        <div class="file-name" id="fileName"></div>
+      </div>
+      <div class="msg" id="msg"></div>
+
+      <div class="preview" id="preview">
+        <div class="preview-title">Preview</div>
+        <div class="preview-img-wrap">
+          <img id="previewImg" alt="Converted PNG preview">
+        </div>
+        <div class="info">
+          <span>Size: <b id="dimensions"></b></span>
+          <span>Original JPEG: <b id="origSize"></b></span>
+          <span>PNG: <b id="pngSize"></b></span>
+        </div>
+        <div class="actions">
+          <a class="primary btn" id="downloadBtn" download="converted.png">Download PNG</a>
+          <button class="ghost" id="resetBtn">Convert another</button>
+        </div>
+      </div>
+
+      <div class="note">PNG is lossless, so the converted image keeps every pixel of the JPEG exactly as it was decoded. A JPEG has already lost some detail when it was saved, and converting it can't bring that detail back.</div>
+    </section>
+  </main>
+
+  <div class="credit">Made by MasterX9</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const dropzone = $('dropzone');
+  const fileInput = $('fileInput');
+  const msg = $('msg');
+  const preview = $('preview');
+  const previewImg = $('previewImg');
+  const downloadBtn = $('downloadBtn');
+  let pngUrl = null;
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function isJpeg(file) {
+    return file && (file.type === 'image/jpeg' || /\.(jpe?g)$/i.test(file.name));
+  }
+
+  function convert(file) {
+    msg.textContent = '';
+    preview.classList.remove('show');
+
+    if (!isJpeg(file)) {
+      msg.textContent = 'Please choose a JPG or JPEG image.';
+      return;
+    }
+
+    $('fileName').textContent = file.name;
+    const srcUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      // Draw at the original resolution, then export as lossless PNG
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(srcUrl);
+
+      canvas.toBlob(blob => {
+        if (!blob) {
+          msg.textContent = 'Could not convert this image. Please try another file.';
+          return;
+        }
+        if (pngUrl) URL.revokeObjectURL(pngUrl);
+        pngUrl = URL.createObjectURL(blob);
+
+        previewImg.src = pngUrl;
+        downloadBtn.href = pngUrl;
+        downloadBtn.download = file.name.replace(/\.(jpe?g)$/i, '') + '.png';
+
+        $('dimensions').textContent = img.naturalWidth + ' × ' + img.naturalHeight + ' px';
+        $('origSize').textContent = formatSize(file.size);
+        $('pngSize').textContent = formatSize(blob.size);
+        preview.classList.add('show');
+      }, 'image/png');
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(srcUrl);
+      msg.textContent = 'This file could not be opened. Make sure it is a valid JPEG.';
+    };
+    img.src = srcUrl;
+  }
+
+  $('browseBtn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) convert(fileInput.files[0]);
+    fileInput.value = '';
+  });
+
+  // Drag and drop
+  ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, e => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  }));
+  ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+  }));
+  dropzone.addEventListener('drop', e => {
+    const file = e.dataTransfer.files[0];
+    if (file) convert(file);
+  });
+
+  $('resetBtn').addEventListener('click', () => {
+    preview.classList.remove('show');
+    $('fileName').textContent = '';
+    msg.textContent = '';
+    if (pngUrl) { URL.revokeObjectURL(pngUrl); pngUrl = null; }
+  });
+</script>
+</body>
+</html>
